@@ -22,31 +22,33 @@ bool MagicalContainer::compareIntPointers_(const int* a, const int* b) {
     return (*a < *b);
 }
 
-void MagicalContainer::addElement(int element){
+void MagicalContainer::addElement(int element) {
     auto it = std::find(container_.begin(), container_.end(), element);
     
-    if(it == container_.end()){
+    if (it == container_.end()) {
         container_.push_back(element);
 
-        sorted_container_.push_back(&(container_.back()));
-        sort(sorted_container_.begin(), sorted_container_.end(), MagicalContainer::compareIntPointers_);
-        
-        if(isPrime_(element)){
-            sorted_container_.push_back(&(container_.back()));
+        sorted_container_.clear();
+        for (vector<int>::size_type i = 0; i < container_.size(); ++i) {
+            sorted_container_.push_back(&(container_[i]));
+        }
+        std::sort(sorted_container_.begin(), sorted_container_.end(), MagicalContainer::compareIntPointers_);
+
+        primes_container_.clear();
+        for (vector<int>::size_type i = 0; i < container_.size(); ++i) {
+            if(isPrime_(container_[i])){
+                primes_container_.push_back(&(container_[i]));
+            }
         }
 
-        if(!cross_container_.empty()){
-            cross_container_.clear();
-        }
-
-        for(int i = 0; i < container_.size() / 2; ++i){
+        cross_container_.clear();
+        for (vector<int>::size_type i = 0; i < container_.size() / 2; ++i) {
             cross_container_.push_back(&(container_[i]));
             cross_container_.push_back(&(container_[container_.size() - 1 - i]));
         }
-        if(container_.size() % 2 != 0){
+        if (container_.size() % 2 != 0) {
             cross_container_.push_back(&(container_[container_.size() / 2]));
         }
-
     }
 }
 
@@ -85,7 +87,7 @@ size_t MagicalContainer::size() const{
 //---------AscendingIterator-------------
 MagicalContainer::AscendingIterator
 ::AscendingIterator(MagicalContainer& container, size_t index)
-:container_(container), index_(index){}
+:container_(&container), index_(index){}
 
 MagicalContainer::AscendingIterator
 ::AscendingIterator(const AscendingIterator& other)
@@ -93,7 +95,7 @@ MagicalContainer::AscendingIterator
 
 MagicalContainer::AscendingIterator& MagicalContainer
 ::AscendingIterator::operator=(const AscendingIterator& other){
-    if(&(container_) != &(other.container_)){
+    if(container_ != other.container_){
         throw runtime_error("cannot assign with different containers");    
     }
     *this = other;
@@ -101,12 +103,12 @@ MagicalContainer::AscendingIterator& MagicalContainer
 }
 
 int& MagicalContainer::AscendingIterator::operator*() const{
-    return *(container_.sorted_container_.at(index_));
+    return *(container_->sorted_container_.at(index_));
 }
 
 MagicalContainer::AscendingIterator& MagicalContainer
 ::AscendingIterator::operator++(){
-    if(index_ == container_.sorted_container_.size() - 1){
+    if(index_ == container_->sorted_container_.size()){
         throw runtime_error("you reach the end");
     }
     index_++;
@@ -119,16 +121,16 @@ bool MagicalContainer::AscendingIterator::operator>(const AscendingIterator& oth
 bool MagicalContainer::AscendingIterator::operator<(const AscendingIterator& other) const{return index_ < other.index_;}
 
 MagicalContainer :: AscendingIterator MagicalContainer :: AscendingIterator :: begin () const {
-    return AscendingIterator(container_);
+    return AscendingIterator(*container_, 0);
 }
 MagicalContainer :: AscendingIterator MagicalContainer :: AscendingIterator :: end () const {
-    return AscendingIterator(container_);
+    return AscendingIterator(*container_, container_->sorted_container_.size());
 }
 
 //---------SideCrossIterator-------------
 MagicalContainer::SideCrossIterator
 ::SideCrossIterator(MagicalContainer& container, size_t index)
-:container_(container), index_(index){}
+:container_(&container), index_(index){}
 
 MagicalContainer::SideCrossIterator
 ::SideCrossIterator(const SideCrossIterator& other)
@@ -136,7 +138,7 @@ MagicalContainer::SideCrossIterator
 
 MagicalContainer::SideCrossIterator& MagicalContainer
 ::SideCrossIterator::operator=(const SideCrossIterator& other){
-    if(&(container_) != &(other.container_)){
+    if(container_ != other.container_){
         throw runtime_error("cannot assign with different containers");    
     }
     *this = other;
@@ -144,12 +146,12 @@ MagicalContainer::SideCrossIterator& MagicalContainer
 }
 
 int& MagicalContainer::SideCrossIterator::operator*() const{
-    return *(container_.cross_container_.at(index_));
+    return *(container_->cross_container_.at(index_));
 }
 
 MagicalContainer::SideCrossIterator& MagicalContainer
 ::SideCrossIterator::operator++(){
-    if(index_ == container_.sorted_container_.size() - 1){
+    if(index_ == container_->sorted_container_.size()){
         throw runtime_error("you reach the end");
     }
     index_++;
@@ -162,16 +164,16 @@ bool MagicalContainer::SideCrossIterator::operator>(const SideCrossIterator& oth
 bool MagicalContainer::SideCrossIterator::operator<(const SideCrossIterator& other) const{return index_ < other.index_;}
 
 MagicalContainer :: SideCrossIterator MagicalContainer :: SideCrossIterator :: begin () const {
-    return SideCrossIterator(container_);
+    return SideCrossIterator(*container_, 0);
 }
 MagicalContainer :: SideCrossIterator MagicalContainer :: SideCrossIterator :: end () const {
-    return SideCrossIterator(container_);
+    return SideCrossIterator(*container_, container_->cross_container_.size());
 }
 
 //---------PrimeIterator-------------
 MagicalContainer::PrimeIterator
 ::PrimeIterator(MagicalContainer& container, size_t index)
-:container_(container), index_(index){}
+:container_(&container), index_(index){}
 
 MagicalContainer::PrimeIterator
 ::PrimeIterator(const PrimeIterator& other)
@@ -179,7 +181,7 @@ MagicalContainer::PrimeIterator
 
 MagicalContainer::PrimeIterator& MagicalContainer
 ::PrimeIterator::operator=(const PrimeIterator& other){
-    if(&(container_) != &(other.container_)){
+    if(container_ != other.container_){
         throw runtime_error("cannot assign with different containers");    
     }
     *this = other;
@@ -187,12 +189,12 @@ MagicalContainer::PrimeIterator& MagicalContainer
 }
 
 int& MagicalContainer::PrimeIterator::operator*() const{
-    return *(container_.primes_container_.at(index_));
+    return *(container_->primes_container_.at(index_));
 }
 
 MagicalContainer::PrimeIterator& MagicalContainer
 ::PrimeIterator::operator++(){
-    if(index_ == container_.primes_container_.size() - 1){
+    if(index_ == container_->primes_container_.size()){
         throw runtime_error("you reach the end");
     }
     index_++;
@@ -205,8 +207,8 @@ bool MagicalContainer::PrimeIterator::operator>(const PrimeIterator& other) cons
 bool MagicalContainer::PrimeIterator::operator<(const PrimeIterator& other) const{return index_ < other.index_;}
 
 MagicalContainer :: PrimeIterator MagicalContainer :: PrimeIterator :: begin () const {
-    return PrimeIterator(container_);
+    return PrimeIterator(*container_, 0);
 }
 MagicalContainer :: PrimeIterator MagicalContainer :: PrimeIterator :: end () const {
-    return PrimeIterator(container_);
+    return PrimeIterator(*container_, container_->primes_container_.size());
 }
