@@ -12,8 +12,8 @@ namespace ariel {
             std::vector<int*> sorted_container_;
             std::vector<int*> cross_container_;
             std::vector<int*> primes_container_;
-            bool isPrime_(int);
-            bool compareIntPointers_(const int* a, const int* b);
+            static bool isPrime_(int);
+            static bool compareIntPointers_(const int* a, const int* b);
 
         public:
             //Constructor
@@ -25,7 +25,7 @@ namespace ariel {
     
         class AscendingIterator {
             private:
-                MagicalContainer& container_;
+                MagicalContainer* container_;
                 std::size_t index_;
 
             public:
@@ -56,7 +56,7 @@ namespace ariel {
 
         class SideCrossIterator {
             private:
-                MagicalContainer& container_;
+                MagicalContainer* container_;
                 std::size_t index_;
 
             public:
@@ -87,7 +87,7 @@ namespace ariel {
 
         class PrimeIterator {
             private:
-                MagicalContainer& container_;
+                MagicalContainer* container_;
                 std::size_t index_;
 
             public:
