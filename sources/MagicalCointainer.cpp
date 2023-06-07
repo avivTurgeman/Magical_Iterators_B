@@ -28,15 +28,21 @@ void MagicalContainer::addElement(int element) {
     if (it == container_.end()) {
         container_.push_back(element);
 
-        sorted_container_.push_back(&(container_.back()));
+        sorted_container_.clear();
+        for (vector<int>::size_type i = 0; i < container_.size(); ++i) {
+            sorted_container_.push_back(&(container_[i]));
+        }
         std::sort(sorted_container_.begin(), sorted_container_.end(), MagicalContainer::compareIntPointers_);
-        
-        if (isPrime_(element)) {
-            primes_container_.push_back(&(container_.back()));
+
+        primes_container_.clear();
+        for (vector<int>::size_type i = 0; i < container_.size(); ++i) {
+            if(isPrime_(container_[i])){
+                primes_container_.push_back(&(container_[i]));
+            }
         }
 
         cross_container_.clear();
-        for (std::vector<int>::size_type i = 0; i < container_.size() / 2; ++i) {
+        for (vector<int>::size_type i = 0; i < container_.size() / 2; ++i) {
             cross_container_.push_back(&(container_[i]));
             cross_container_.push_back(&(container_[container_.size() - 1 - i]));
         }
